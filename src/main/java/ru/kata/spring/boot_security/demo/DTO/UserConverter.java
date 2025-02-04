@@ -20,17 +20,6 @@ public class UserConverter {
         this.roleService = roleService;
     }
 
-    public  UserDTO toUserDTO(User user) {
-        UserDTO userDTO = new UserDTO();
-        userDTO.setId(user.getId());
-        userDTO.setUsername(user.getUsername());
-        userDTO.setEmail(user.getEmail());
-        userDTO.setRoles(user.getRoles().stream()
-                .map(Role::getId)  // Извлекаем только ID ролей
-                .collect(Collectors.toSet()));
-        return userDTO;
-    }
-
     public  User toUser(UserDTO userDTO) {
         User user = new User();
         user.setId(userDTO.getId());
