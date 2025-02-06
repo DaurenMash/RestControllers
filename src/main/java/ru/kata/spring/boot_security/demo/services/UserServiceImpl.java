@@ -4,9 +4,10 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.kata.spring.boot_security.demo.DTO.UserConverter;
-import ru.kata.spring.boot_security.demo.DTO.UserDTO;
+import ru.kata.spring.boot_security.demo.dto.Mapper;
+import ru.kata.spring.boot_security.demo.dto.UserDTO;
 import ru.kata.spring.boot_security.demo.configs.PasswordEncoderConfig;
+import ru.kata.spring.boot_security.demo.model.Role;
 import ru.kata.spring.boot_security.demo.model.User;
 import ru.kata.spring.boot_security.demo.repositories.UserRepository;
 
@@ -15,23 +16,22 @@ import java.util.List;
 
 
 @Service
-@Transactional
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoderConfig passwordEncoder;
-    private final UserConverter userConverter;
+    private final Mapper mapper;
 
     public UserServiceImpl(UserRepository userRepository,
                            PasswordEncoderConfig passwordEncoder,
-                           UserConverter userConverter) {
+                           Mapper mapper) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
-        this.userConverter = userConverter;
+        this.mapper = mapper;
     }
 
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public List<User> getAllUsers() {
         return userRepository.findAll();
     }
@@ -53,13 +53,14 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public void update(Long id, UserDTO userDTO) {
-        User userToUpdate = userConverter.toUser(userDTO);
+        User userToUpdate = mapper.toUser(userDTO);
         userToUpdate.setId(id);
         update(userToUpdate);
     }
 
 
     @Override
+    @Transactional
     public void delete(long id) {
         findUserById(id);
         userRepository.deleteById(id);
@@ -67,7 +68,7 @@ public class UserServiceImpl implements UserService {
 
 
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public User findUserById(long id) {
         return userRepository.findById(id).orElseThrow(() ->
                 new RuntimeException("User с данным id не найден"));
@@ -77,21 +78,20 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public void save(UserDTO userDTO){
-        User user = userConverter.toUser(userDTO);
+        User user = mapper.toUser(userDTO);
         user.setPassword(passwordEncoder.passwordEncoder().encode(user.getPassword()));
         userRepository.save(user);
     }
 
 
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public User findByUserName(String username) {
         return userRepository.findUserByUsername(username);
     }
 
-
-    @Transactional
     @Override
+    @Transactional(readOnly = true)
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         User user = findByUserName(username);
         if (user == null) {
@@ -99,5 +99,6 @@ public class UserServiceImpl implements UserService {
         }
         return user;
     }
+
 
 }

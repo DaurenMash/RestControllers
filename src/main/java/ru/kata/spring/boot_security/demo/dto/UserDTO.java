@@ -1,4 +1,4 @@
-package ru.kata.spring.boot_security.demo.DTO;
+package ru.kata.spring.boot_security.demo.dto;
 
 import java.util.Set;
 
@@ -7,6 +7,7 @@ public class UserDTO {
     private String username;
     private String password;
     private String email;
+    private Set<Long> roles;
 
     public String getEmail() {
         return email;
@@ -15,8 +16,6 @@ public class UserDTO {
     public void setEmail(String email) {
         this.email = email;
     }
-
-    private Set<Long> roles;
 
     public Long getId() {
         return id;
@@ -49,4 +48,6 @@ public class UserDTO {
     public void setRoles(Set<Long> roles) {
         this.roles = roles;
     }
+
+
 }
